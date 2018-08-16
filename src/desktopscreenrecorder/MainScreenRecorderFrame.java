@@ -138,11 +138,14 @@ public class MainScreenRecorderFrame extends javax.swing.JFrame {
 
     private void buttonStopRecordingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStopRecordingActionPerformed
 
-        isRecording = false;
+       
 
-        RecordTimer.stop();
 
-        if (!isRecording) {
+        if (isRecording) {
+            
+             RecordTimer.stop(); 
+
+                    
             recordStateLabel.setText("Recording Stopped");
             recordTimeLabel.setText("" + RecordTimer.getTimeInSec());
 
@@ -169,6 +172,8 @@ public class MainScreenRecorderFrame extends javax.swing.JFrame {
             }
 
         }
+        
+         isRecording = false;
 
 
     }//GEN-LAST:event_buttonStopRecordingActionPerformed
@@ -176,7 +181,7 @@ public class MainScreenRecorderFrame extends javax.swing.JFrame {
     private void buttonStartRecordingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStartRecordingActionPerformed
         // TODO add your handling code here:
 
-        initObjects("record3");
+        initObjects("record31");
         isRecording = true;
 
         int delay = 1000 / 24;
