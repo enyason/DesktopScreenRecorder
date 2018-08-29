@@ -181,7 +181,7 @@ public class MainScreenRecorderFrame extends javax.swing.JFrame {
     private void buttonStartRecordingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStartRecordingActionPerformed
         // TODO add your handling code here:
 
-        initObjects("record31");
+        initObjects("video_ouput");
         isRecording = true;
 
         int delay = 1000 / 24;

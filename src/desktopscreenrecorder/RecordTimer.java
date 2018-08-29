@@ -1,7 +1,7 @@
 package desktopscreenrecorder;
 
 
-// this class impliments a recording timer
+// this class implements a recording timer
 public class RecordTimer {
 
     // the starting time 
