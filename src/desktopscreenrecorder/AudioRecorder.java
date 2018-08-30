@@ -23,13 +23,13 @@ import javax.sound.sampled.TargetDataLine;
  *
  * @author enyason
  */
-public class AudioRecorder {
+public class AudioRecorder extends Thread {
 
     private static TargetDataLine mic;
 
     public void AudioRecorder() {
 
-        initRecording();
+//        initRecording();
     }
 
     private void initRecording() {
@@ -47,7 +47,7 @@ public class AudioRecorder {
             mic.open();
 
             System.out.println("recording initialized...");
-            mic.start();
+          
 
         } catch (LineUnavailableException ex) {
 
@@ -57,40 +57,47 @@ public class AudioRecorder {
 
     }
 
-    public static void statRecording() {
+    @Override
+    public  void run() {
+        
+        initRecording();
+        statRecording();
 
-        Thread thread = new Thread() {
-
-            @Override
-            public void run() {
-
-                try {
-                    AudioInputStream audioInputStream = new AudioInputStream(mic);
-
-                    File f = new File("audio.wav");
-
-                    AudioSystem.write(audioInputStream, AudioFileFormat.Type.WAVE, f);
-                    System.out.println("done writing to file");
-
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-
-        };
-
-        thread.start();
-
-//            Thread.sleep(20000);
     }
 
-    public static void stopRecording() {
+    private void statRecording() {
+
+
+        try {
+              mic.start();
+
+            AudioInputStream audioInputStream = new AudioInputStream(mic);
+
+            File f = new File("audio_output.wav");
+
+            AudioSystem.write(audioInputStream, AudioFileFormat.Type.WAVE, f);
+            System.out.println("done writing to file");
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+    }
+    
+    
+    
+       public void stopRecording() {
         mic.stop();
         
         mic.close();
         System.out.println("Recording ended");
 
     }
-
+    
 }
+
+ 
+
+
+
+
