@@ -23,6 +23,9 @@ public class MainScreenRecorderFrame extends javax.swing.JFrame {
     /**
      * Creates new form MainScreenRecorderFrame
      */
+    String execConvertToAVI = "ffmpeg -i mp4_video_output.mp4 -q:v 0 avi_video_output.avi";
+    String execMuxAudioVideo = "ffmpeg -i avi_video_output.avi -i audio_output.wav -c:v copy -c:a aac -strict experimental video_output.mp4";
+
     public MainScreenRecorderFrame() {
         initComponents();
 
@@ -138,42 +141,17 @@ public class MainScreenRecorderFrame extends javax.swing.JFrame {
 
     private void buttonStopRecordingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStopRecordingActionPerformed
 
-       
-
-
         if (isRecording) {
-            
-             RecordTimer.stop(); 
 
-                    
-            recordStateLabel.setText("Recording Stopped");
-            recordTimeLabel.setText("" + RecordTimer.getTimeInSec());
+            stopScreenRecording();
+            audioRecorder.stopRecording();
 
-            //cancle the timer for time counting here
-            timerCount.cancel();
-            timerCount.purge();
-
-            // stop the timer from executing the task here
-            timerRecord.cancel();
-            timerRecord.purge();
-
-            recorderTask.cancel();
-            countTask.cancel();
-
-            try {
-
-                encoder.finish();// finish  encoding
-                System.out.println("encoding finish " + (RecordTimer.getTimeInSec()) + "s");
-                recordStateLabel.setText("recorder Stopped...");
-                recordTimeLabel.setText(""+RecordTimer.getTimeInMin()+"min");
-
-            } catch (IOException ex) {
-                Logger.getLogger(MainScreenRecorderFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            ExecFfmpeg.executeFfMpeg(execConvertToAVI);
+            ExecFfmpeg.executeFfMpeg(execMuxAudioVideo);
 
         }
-        
-         isRecording = false;
+
+        isRecording = false;
 
 
     }//GEN-LAST:event_buttonStopRecordingActionPerformed
@@ -181,24 +159,12 @@ public class MainScreenRecorderFrame extends javax.swing.JFrame {
     private void buttonStartRecordingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStartRecordingActionPerformed
         // TODO add your handling code here:
 
-        initObjects("video_ouput");
-        isRecording = true;
+        initScreenRecorderObjects("mp4_video_output");
+        scheduleTimerTasks();
 
-        int delay = 1000 / 24;
+        audioRecorder = new AudioRecorder();
+        audioRecorder.start();
 
-        RecordTimer.reset();
-
-        timerRecord = new Timer("Thread TimerRecord");
-
-        timerCount = new Timer("Thread TimerCount");
-
-        recorderTask = new ScreenRecorderTask(encoder, rectangle);
-        countTask = new TimerCountTask(labelTimer);
-
-        timerRecord.scheduleAtFixedRate(recorderTask, 0, delay);
-        timerCount.scheduleAtFixedRate(countTask, 0, 1000);
-
-        recordStateLabel.setText("recorder Started...");
 
 
     }//GEN-LAST:event_buttonStartRecordingActionPerformed
@@ -264,16 +230,71 @@ public class MainScreenRecorderFrame extends javax.swing.JFrame {
     boolean isRecording = false;
     File f;
 
-    private void initObjects(String fileName) {
+    AudioRecorder audioRecorder;
+
+    private void initScreenRecorderObjects(String fileName) {
 
         rectangle = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
 
 //       //create a new file
-        f = new File(fileName+".mp4");
+        f = new File(fileName + ".mp4");
 
         try {
             // initialize the encoder
-            encoder = AWTSequenceEncoder.createSequenceEncoder(f, 24 / 4);
+            encoder = AWTSequenceEncoder.createSequenceEncoder(f, 24 / 8);
+        } catch (IOException ex) {
+            Logger.getLogger(MainScreenRecorderFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    private void scheduleTimerTasks() {
+
+        isRecording = true;
+
+        int delay = 1000 / 24;
+
+        RecordTimer.reset();
+
+        timerRecord = new Timer("Thread TimerRecord");
+
+        timerCount = new Timer("Thread TimerCount");
+
+        recorderTask = new ScreenRecorderTask(encoder, rectangle);
+        countTask = new TimerCountTask(labelTimer);
+
+        timerRecord.scheduleAtFixedRate(recorderTask, 0, delay);
+        timerCount.scheduleAtFixedRate(countTask, 0, 1000);
+
+        recordStateLabel.setText("recorder Started...");
+
+    }
+
+    private void stopScreenRecording() {
+
+        RecordTimer.stop();
+
+        recordStateLabel.setText("Recording Stopped");
+        recordTimeLabel.setText("" + RecordTimer.getTimeInSec());
+
+        //cancle the timer for time counting here
+        timerCount.cancel();
+        timerCount.purge();
+
+        // stop the timer from executing the task here
+        timerRecord.cancel();
+        timerRecord.purge();
+
+        recorderTask.cancel();
+        countTask.cancel();
+
+        try {
+
+            encoder.finish();// finish  encoding
+            System.out.println("encoding finish " + (RecordTimer.getTimeInSec()) + "s");
+            recordStateLabel.setText("recorder Stopped...");
+            recordTimeLabel.setText("" + RecordTimer.getTimeInMin() + "min");
+
         } catch (IOException ex) {
             Logger.getLogger(MainScreenRecorderFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
